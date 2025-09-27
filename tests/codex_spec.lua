@@ -140,6 +140,8 @@ describe('codex.nvim core behaviour', function()
       }))
     end
     assert.truthy(sel1)
+    print('sel1 text', sel1 and sel1.text)
+    print('selection option', vim.o.selection)
     assert.is_true(sel1.text:find('first') ~= nil)
     actions.send_selection()
 
@@ -173,6 +175,21 @@ describe('codex.nvim core behaviour', function()
     assert.equal(1, #sent)
     local payload3 = sent[1].data
     assert.is_true(payload3:find('first line\nsecond line') ~= nil)
+  end)
+
+  it('autostart launches the job without opening the window', function()
+    codex.setup({
+      autostart = true,
+      auto_status_delay_ms = 0,
+      codex_cmd = { 'codex' },
+    })
+
+    vim.wait(50, function()
+      return termopen_calls > 0
+    end)
+
+    assert.equal(1, termopen_calls)
+    assert.is_false(ui_state.open)
   end)
 
   it('sends full buffer with newline and focuses when configured', function()

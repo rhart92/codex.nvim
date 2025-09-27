@@ -1,7 +1,6 @@
 local config = require("codex.config")
 local actions = require("codex.actions")
 local terminal = require("codex.terminal")
-local ui = require("codex.ui")
 local log = require("codex.log")
 
 local M = {}
@@ -47,12 +46,10 @@ function M.setup(opts)
 
 	if conf.autostart then
 		vim.schedule(function()
-			log.debug("autostart: opening terminal")
-			print("start")
-			terminal.open()
-			log.debug("autostart: closing window")
-			print("close")
-			ui.close_window()
+			local ok = terminal.ensure_background()
+			if not ok then
+				log.error("autostart failed to launch Codex job")
+			end
 		end)
 	end
 

@@ -88,10 +88,20 @@ local function ensure_terminal_buffer()
 	return bufnr
 end
 
-local function start_job(conf)
+local function start_job(conf, opts)
+	ops = opts or {}
+	local open_window = opts.open_window
+	if open_window == nil then
+		open_window = true
+	end
+
 	local bufnr = ensure_terminal_buffer()
-	local winid = ui.open_window(conf, bufnr)
-	api.nvim_set_current_win(winid)
+	local winid
+
+	if open_window then
+		winid = ui.open_window(conf, bufnr)
+		api.nvim_set_current_win(winid)
+	end
 
 	api.nvim_buf_call(bufnr, function()
 		state.job_id = fn.termopen(conf.codex_cmd, {
@@ -113,7 +123,10 @@ local function start_job(conf)
 
 	vim.bo[bufnr].buflisted = false
 	vim.b[bufnr].codex_terminal = true
-	enter_terminal_mode(bufnr)
+
+	if open_window then
+		enter_terminal_mode(bufnr)
+	end
 
 	local chan = state.job_id
 	if conf.auto_status_delay_ms and conf.auto_status_delay_ms > 0 then
@@ -128,20 +141,26 @@ local function start_job(conf)
 	return true
 end
 
-local function ensure_job(conf)
+local function ensure_job(conf, opts)
+	opts = opts or {}
+	local open_window = opts.open_window
+	if open_window == nil then
+		open_window = true
+	end
+
 	conf = conf or config.get()
 	if is_job_running() then
-		if not ui.is_open() and state.bufnr then
+		if open_window and not ui.is_open() and state.bufnr then
 			ui.open_window(conf, state.bufnr)
 			enter_terminal_mode(state.bufnr)
 		end
 		return true
 	end
-	return start_job(conf)
+	return start_job(conf, opts)
 end
 
 function M.open()
-	ensure_job(config.get())
+	ensure_job(config.get(), { open_window = true })
 end
 
 function M.close()
@@ -157,7 +176,7 @@ function M.toggle()
 	if ui.is_open() then
 		ui.close_window()
 	else
-		ensure_job(config.get())
+		ensure_job(config.get(), { open_window = true })
 	end
 end
 
@@ -236,6 +255,8 @@ local function get_visual_selection()
 	local selection_type = vim.fn.visualmode() or mode or "v"
 	local start_pos = vim.fn.getpos("v")
 	local end_pos = vim.fn.getpos(".")
+	print('selection_type', selection_type, 'start', vim.inspect(start_pos), 'end', vim.inspect(end_pos))
+	log.debug("visual positions", { selection_type = selection_type, start_pos = start_pos, end_pos = end_pos })
 
 	if start_pos[2] == 0 or end_pos[2] == 0 then
 		if needs_restore or mode:match("^[vV\22]") then
@@ -347,6 +368,10 @@ function M.send_buffer()
 	local display = vim.fn.fnamemodify(filename, ":.")
 	local message = string.format("File: %s\nThis buffer was shared; please read it from disk.\n\n", display)
 	M.send(message, { submit = false })
+end
+
+function M.ensure_background()
+	return ensure_job(config.get(), { open_window = false })
 end
 
 M._debug_get_visual_selection = get_visual_selection
