@@ -1,0 +1,85 @@
+*codex.txt*                                   codex.nvim                                    *codex*
+
+=============================================================================
+INTRODUCTION                                                           *codex-intro*
+    codex.nvim embeds the Codex CLI inside Neovim. Toggle a dedicated
+    split or floating terminal, send code snippets, and monitor Codex
+    responses without leaving the editor.
+
+=============================================================================
+CONFIGURATION                                                          *codex-config*
+    Call `require("codex").setup({...})` from your configuration. Every
+    option is optional; unspecified values fall back to the defaults below.
+
+        split = "horizontal" | "vertical" | "float"
+        size = 0.3
+        float = {
+            width = 0.6,
+            height = 0.6,
+            border = "rounded",
+            row = nil,
+            col = nil,
+            title = "Codex",
+        }
+        codex_cmd = { "codex" }
+        auto_status_delay_ms = 150
+        enable_session_cache = true
+        log_tail_enabled = false
+        focus_after_send = false
+
+    Example (lazy.nvim):
+>
+        {
+          "yourname/codex.nvim",
+          opts = {
+            split = "float",
+            codex_cmd = { "codex", "--profile", "nvim" },
+          },
+        }
+        -- add your own keymaps if desired
+<
+
+=============================================================================
+LUA API                                                                *codex-api*
+    require("codex").open()
+            Open the Codex terminal.
+
+    require("codex").close()
+            Close the Codex terminal.
+
+    require("codex").toggle()
+            Toggle the window without touching state.
+
+    require("codex").send(text[, opts])
+            Send arbitrary text to the Codex CLI. When `opts.submit` is
+            `true` (the default) a carriage return is sent after a short
+            delay to execute the command.
+
+    require("codex").actions.send_selection()
+            Send the current visual selection.
+
+    require("codex").actions.send_buffer()
+            Send the entire buffer.
+
+    Example mapping:
+>
+        vim.keymap.set("v", "<leader>cs", require("codex").actions.send_selection,
+          { desc = "Codex: Send selection" })
+<
+
+    Codex shuts down automatically during |QuitPre| or |VimLeavePre| so
+    Neovim can exit cleanly.
+
+=============================================================================
+TROUBLESHOOTING                                                        *codex-troubleshooting*
+    - Make sure `codex` runs in a regular terminal.
+    - If the terminal fails to spawn, check `:messages` for the plugin
+      error output.
+    - Override `codex_cmd` with the absolute path when Codex is installed
+      outside `$PATH`.
+    - Enable `focus_after_send` to jump straight into the Codex terminal
+      after sending a selection or buffer.
+
+=============================================================================
+CREDITS                                                                *codex-credits*
+    codex.nvim is maintained by the Codex CLI enthusiasts community.
