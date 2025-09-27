@@ -5,13 +5,9 @@ local log = require("codex.log")
 
 local M = {}
 
-local autocmd_registered
 local helptags_generated
 
 local function ensure_autocmds()
-	if autocmd_registered then
-		return
-	end
 	local group = vim.api.nvim_create_augroup("CodexShutdown", { clear = true })
 	vim.api.nvim_create_autocmd({ "QuitPre", "VimLeavePre" }, {
 		group = group,
@@ -19,7 +15,6 @@ local function ensure_autocmds()
 			actions.close()
 		end,
 	})
-	autocmd_registered = true
 end
 
 local function ensure_helptags()
