@@ -9,7 +9,7 @@ local helptags_generated
 
 local function ensure_autocmds()
 	local group = vim.api.nvim_create_augroup("CodexShutdown", { clear = true })
-	vim.api.nvim_create_autocmd({ "QuitPre", "VimLeavePre" }, {
+	vim.api.nvim_create_autocmd("VimLeavePre", {
 		group = group,
 		callback = function()
 			actions.close()
