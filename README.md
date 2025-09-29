@@ -2,6 +2,8 @@
 
 `🚧 IN DEVELOPMENT` A lightweight Neovim companion for the Codex CLI. It opens Codex inside a dedicated split or floating terminal, so you can send code snippets without leaving your editor.
 
+![Demo](./assets/demo.gif)
+
 ## Features
 
 - Toggleable horizontal, vertical, or floating Codex terminal
@@ -18,7 +20,7 @@
 Add `codex.nvim` to your plugin manager. With [lazy.nvim](https://github.com/folke/lazy.nvim):
 
 ```lua
-{ "yourname/codex.nvim", }
+{ "rhart92/codex.nvim", }
 ```
 
 ## Usage
@@ -39,11 +41,11 @@ All settings are optional. These are the defaults:
 
 ```lua
 {
-  split = "horizontal", -- horizontal | vertical | float
-  size = 0.3,            -- percentage or absolute size for splits
+  split = "horizontal",
+  size = 0.3,
   float = {
-    width = 0.6,         -- relative width when <= 1, else absolute columns
-    height = 0.6,        -- relative height when <= 1, else absolute rows
+    width = 0.6,
+    height = 0.6,
     border = "rounded",
     row = nil,
     col = nil,
